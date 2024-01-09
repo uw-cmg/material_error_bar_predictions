@@ -11,10 +11,6 @@ from keras.wrappers.scikit_learn import KerasRegressor
 
 
 model_rf = SklearnModel(model='RandomForestRegressor')
-ensemble_rf = EnsembleModel(model='RandomForestRegressor',n_estimators= 10)
-model_gpr = EnsembleModel(model='GaussianProcessRegressor', kernel='ConstantKernel*Matern+WhiteKernel', n_estimators= 10, n_restarts_optimizer = 10)
-model_nn = EnsembleModel(model='MLPRegressor', hidden_layer_sizes=(2048, 2048), n_estimators = 25)
-model_lasso = EnsembleModel(model="Lasso", n_estimators=50)
 model_neighbor = EnsembleModel(model="KNeighborsRegressor", n_estimators=20, metric = "euclidean", 
         n_neighbors = 5,  weights = "distance")
 
@@ -32,7 +28,7 @@ Perovskite = "datasets/Perovskite_70_Selected_Features.xlsx"
 Supercond = "datasets/Supercon_data_features_selected.xlsx"
 save_folder = "/home/mse10/vidit-work/FirstModelRuns"
 
-model_dict = {model_rf: 'RandomForestRegressor',ensemble_rf: 'EnsembleRandomForestRegressor',  model_nn: 'NeuralNetwork', model_neighbor: 'NearestNeighbor'}
+model_dict = {model_rf: 'RandomForestRegressor', model_neighbor: 'NearestNeighbor', model_keras: 'KerasNetwork'}
 dataset_dict = {Diffusion: 'Diffusion', Perovskite: 'Perovskite', Supercond: 'Superconductivity'}
 
 
@@ -72,10 +68,9 @@ for datapath in [Diffusion, Perovskite, Supercond]:
 
     keras_regressor = KerasRegressor(build_fn=keras_model, epochs=100, batch_size=100, verbose=0)
     model_keras=EnsembleModel(model=keras_regressor, n_estimators = 20)
-    model_dict[model_keras] = 'KerasNetwork'
 
-    for modelType in [model_keras]:
-        for splitter_type in ['CV']:
+    for modelType in [model_rf, model_neighbor, model_keras]:
+        for splitter_type in ['CV', 'NoSplit']:
 
             SAVEPATH = save_folder + "/data_{}_model_{}_{}".format(dataset_dict[datapath], model_dict[modelType],splitter_type)
             mastml = Mastml(savepath=SAVEPATH)
@@ -83,7 +78,7 @@ for datapath in [Diffusion, Perovskite, Supercond]:
 
             if splitter_type == 'CV':
                 splitter = SklearnDataSplitter(splitter='RepeatedKFold', n_repeats=1, n_splits=5)
-            else:
+            elif splitter_type == 'NoSplit':
                 splitter = NoSplit()
 
             #Running this model according to Palmer specifications
