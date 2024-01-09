@@ -14,15 +14,6 @@ from tensorflow.keras.callbacks import EarlyStopping
 data_folder = "/home/mse10/vidit-work/AugmentedDatasets"
 
 model_rf = SklearnModel(model='RandomForestRegressor')
-# model_gpr = SklearnModel(model='GaussianProcessRegressor', kernel='ConstantKernel*Matern+WhiteKernel', n_restarts_optimizer = 5)
-# model_nn = SklearnModel(model='MLPRegressor', hidden_layer_sizes=(20, 10))
-
-early_stopping = EarlyStopping(
-    monitor='val_loss',   # Metric to monitor (e.g., validation loss)
-    patience=3,            # Number of epochs with no improvement after which training will be stopped
-    verbose=1              # Prints a message when training is stopped
-)
-
 
 def keras_model():
     model = Sequential()
@@ -33,7 +24,6 @@ def keras_model():
     return model
 
 keras_regressor = KerasRegressor(build_fn=keras_model, epochs=300, batch_size=100, verbose=0)
-
 
 model_dict = {'model_neighbor':'NearestNeighbor','model_keras':'KerasNetwork','model_rf':'RandomForestRegressor'}
 Datasets = ["replace_dataset"]
