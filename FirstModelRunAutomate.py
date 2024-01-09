@@ -11,8 +11,7 @@ from keras.wrappers.scikit_learn import KerasRegressor
 
 
 model_rf = SklearnModel(model='RandomForestRegressor')
-model_neighbor = EnsembleModel(model="KNeighborsRegressor", n_estimators=20, metric = "euclidean", 
-        n_neighbors = 5,  weights = "distance")
+model_neighbor = EnsembleModel(model="KNeighborsRegressor", n_estimators=20, metric = "euclidean", n_neighbors = 5,  weights = "distance")
 
 def keras_model():
     model = Sequential()
@@ -22,6 +21,8 @@ def keras_model():
     model.compile(loss='mean_squared_error', optimizer='adam')
     return model
 
+keras_regressor = KerasRegressor(build_fn=keras_model, epochs=100, batch_size=100, verbose=0)
+model_keras = EnsembleModel(model=keras_regressor, n_estimators = 20)
 
 Diffusion = "datasets/diffusion_data_selectfeatures.xlsx"
 Perovskite = "datasets/Perovskite_70_Selected_Features.xlsx"
@@ -65,9 +66,6 @@ for datapath in [Diffusion, Perovskite, Supercond]:
 
     preprocessor = SklearnPreprocessor(preprocessor='MinMaxScaler', as_frame=True)
     metrics = ['r2_score', 'mean_absolute_error', 'root_mean_squared_error', 'rmse_over_stdev']
-
-    keras_regressor = KerasRegressor(build_fn=keras_model, epochs=100, batch_size=100, verbose=0)
-    model_keras=EnsembleModel(model=keras_regressor, n_estimators = 20)
 
     for modelType in [model_rf, model_neighbor, model_keras]:
         for splitter_type in ['CV', 'NoSplit']:
